@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <!-- REACT LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+    <!-- REACT DOM LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+    <!-- BABEL LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.25.0/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+</head>
+    <body>
+        <div id="root">React not rendered</div>
+        <script type="text/babel">
+            class CountDown extends React.Component{
+                constructor(props){
+                    super(props);
+
+                    let tDate = 0;
+                    if(this.props.targetDate){
+                        tDate = this.props.targetDate;
+                    } else{
+                        tDate = new Date("Aug 17, 2019 16:00:00").getTime();
+                    }
+
+                    let fontSize = 21;
+                    if(this.props.fontSize){
+                        fontSize = this.props.fontSize;
+                    }
+
+                    this.updateTimer = this.updateTimer.bind(this);
+                    this.getCountdownObject = this.getCountdownObject.bind(this);
+                    
+                    let initialTimer = this.getCountdownObject(tDate);
+
+                    this.state = {
+                        targetDate: tDate,
+                        countInterval: null,
+                        days: initialTimer.days,
+                        hours: initialTimer.hours,
+                        minutes: initialTimer.minutes,
+                        seconds: initialTimer.seconds
+                    };
+                }
+
+                getCountdownObject(targetDate){
+                    let now = new Date().getTime();
+                    let distance = targetDate - now;
+                    if(distance < 0){
+                        distance = 0;
+                    }
+
+                    return {
+                        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 *60)),
+                        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                        seconds: Math.floor((distance % (1000 * 60)) / (1000))                        
+                    }
+                }
+
+                updateTimer(){
+                    this.setState(this.getCountdownObject(this.state.targetDate));
+                }
+
+                componentDidMount(){
+                    this.setState({
+                        countInterval: setInterval(this.updateTimer, 1000)
+                    });
+                }
+
+                componentWillUnmount(){
+                    clearInterval(this.state.countInterval);
+                }
+
+                render(){
+                    let timerStyle = {
+                        display:"inline-block",
+                        fontSize:this.state.fontSize
+                    };
+
+                    return(
+                        <div>
+                            <h1 style={timerStyle}>{this.state.days >= 10 ? this.state.days : '0' + this.state.days } : </h1>
+                            <h1 style={timerStyle}>{this.state.hours >= 10 ? this.state.hours : '0' + this.state.hours } : </h1>
+                            <h1 style={timerStyle}>{this.state.minutes >= 10 ? this.state.minutes : '0' + this.state.minutes } : </h1>
+                            <h1 style={timerStyle}>{this.state.seconds >= 10 ? this.state.seconds : '0' + this.state.seconds }</h1>
+                        </div>
+                    );
+                }
+            }
+            ReactDOM.render(<CountDown/>, document.getElementById('root'));
+        </script>
+    </body>
+</html>
